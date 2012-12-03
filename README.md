@@ -1,2 +1,3 @@
 dialog-polyfill
 ===============
+Dialog polyfill.
