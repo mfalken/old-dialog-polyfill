@@ -1,0 +1,236 @@
+<html>
+  <head>
+    <title>DIALOG mock up.</title>
+    <script src="http://closure-library.googlecode.com/svn/trunk/closure/goog/base.js"></script>
+    <script src="../dialog.js"></script>
+    <style>
+.logindialog, .anchordialog {
+  text-align:center;
+  border-style:solid;
+  border-width:medium;
+  max-width: 50%;
+  padding: 5px;
+}
+
+.seconddialog {
+  text-align:center;
+  border-style: dotted;
+  border-width: medium;
+  max-width: 25%;
+}
+
+/* It's up to the page to darken the screen. */
+.modaloverlay {
+  width: 100%;
+  height: 100%;
+  z-index: 11;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  background-color: gray;
+  opacity: 0.7;
+}
+
+#clickspace {
+  background: yellow;
+  width: 100%;
+  height: 300px;
+}
+    </style>
+    <script>
+var modalOverlay;
+var loginDialog;
+var anchorDialog;
+var mouseDialog;
+
+function showSecondModal() {
+  var secondModal = new Dialog();
+
+  var dialogdiv = document.createElement('div');
+  dialogdiv.className = 'seconddialog';
+
+  dialogdiv.innerHTML =
+      '<p>The topmost modal dialog blocks everything else ' +
+      'including other (pending) modal dialogs.</p>';
+  dialogdiv.innerHTML +=
+      '<p>A dialog is centered in the window by default. It can also be ' +
+      'anchored to an element, as is this one.';
+
+  var closeButton = document.createElement('button');
+  closeButton.innerText = 'Close';
+  closeButton.addEventListener('click', function() { secondModal.close(); });
+
+  dialogdiv.appendChild(closeButton);
+  secondModal.node = dialogdiv;
+  secondModal.showModal(document.getElementById('seconddialoganchor'));
+}
+
+function showLogin() {
+  loginDialog.showModal();
+}
+
+function showAnchor() {
+  var anchor = document.getElementById('dialoganchor');
+  anchorDialog.show(anchor);
+}
+
+function showMouse(e) {
+  if (mouseDialog.open)
+    mouseDialog.close();
+  mouseDialog.show(e);
+}
+
+function closeLogin() {
+  loginDialog.close();
+}
+
+function closeAnchor() {
+  anchorDialog.close();
+}
+
+function closeMouse() {
+  mouseDialog.close();
+}
+
+function makeLoginDialog() {
+  loginDialog = new Dialog();
+
+  var dialogdiv = document.createElement('div');
+  dialogdiv.className = 'logindialog';
+  dialogdiv.innerHTML = '<h1>Login</h1>';
+  dialogdiv.innerHTML +=
+      "<p>This is a modal dialog. It's guaranteed to be on top and blocks " +
+      "the document. But it's up to the author to provide UI effects like " +
+      'borders and graying out the document. It can be used for things like ' +
+      'login dialogs.</p>';
+  dialogdiv.innerHTML +=
+      '<form>username:<input type="text"><br>' +
+      'password:<input type="password"></form>';
+  dialogdiv.innerHTML +=
+      "<p><a href='javascript:void(0)' onclick='showSecondModal();'>" +
+      'Open another modal dialog!</a></p>';
+
+  var closeButton = document.createElement('button');
+  closeButton.innerText = 'Close';
+  closeButton.addEventListener('click', closeLogin);
+
+  dialogdiv.appendChild(closeButton);
+  loginDialog.node = dialogdiv;
+}
+
+function makeAnchorDialog() {
+  anchorDialog = new Dialog();
+  var anchorDialogNode = document.createElement('div');
+  anchorDialogNode.className = 'anchordialog';
+
+  anchorDialogNode.innerHTML =
+      "hi popup here<img src='portrait.jpg' width='300' height='300' />";
+
+  var closeButton = document.createElement('button');
+  closeButton.innerText = 'Close';
+  closeButton.addEventListener('click', closeAnchor);
+
+  anchorDialogNode.appendChild(closeButton);
+  anchorDialog.node = anchorDialogNode;
+}
+
+function makeMouseDialog() {
+  mouseDialog = new Dialog();
+  var mouseDialogNode = document.createElement('div');
+  mouseDialogNode.className = 'anchordialog';
+
+  mouseDialogNode.innerHTML =
+      '<p>A dialog can be anchored to a MouseEvent. This can be used for ' +
+      'tooltips and the like.</p>';
+  mouseDialogNode.innerHTML +=
+      "<div><img src='portrait.jpg' width='300' height='300' /></div>";
+
+  var closeButton = document.createElement('button');
+  closeButton.innerText = 'Close';
+  closeButton.addEventListener('click', closeMouse);
+
+  mouseDialogNode.appendChild(closeButton);
+  mouseDialog.node = mouseDialogNode;
+}
+
+function makeModalOverlay() {
+  modalOverlay = document.createElement('div');
+  modalOverlay.className = 'modaloverlay';
+}
+
+function init() {
+  makeLoginDialog();
+  makeAnchorDialog();
+  makeMouseDialog();
+  makeModalOverlay();
+
+  var anchor = document.getElementById('dialoganchor');
+  anchor.addEventListener('click', showAnchor);
+
+  var clickspace = document.getElementById('clickspace');
+  clickspace.addEventListener('click', showMouse);
+}
+
+window.onload = function() {
+  init();
+}
+  </script>
+  </head>
+  <body>
+    <h1>Dialog mock</h1>
+    <p><b>This is a mock of DIALOG</b>. Some possible points of discussion:</p>
+      <ul><li>Currently, the dialog has no border/UI by default. The page author draws the
+        border. Should it?</li>
+        <li>Open the login dialog. Then click the link to "open another
+        modal dialog". This opens an anchored modal dialog. Notice you can
+        scroll so that anchored modal dialog is off the screen. Is this ok?</li>
+        <li>Related, you can open the login dialog, scroll toward the bottom,
+        then open the anchored modal dialog. Again, it is off the screen. Is
+        this ok?</li>
+        <li>By default there is no visual cue that a modal dialog is open.
+        Should there be?</li>
+        <li>Should text selection/find in page be enabled when a modal dialog
+        is open?</li>
+      </ul>
+    <p><a href="javascript:void(0)" onclick="showLogin();">Click to open login
+      dialog.</a></p>
+    <div id="clickspace"><p>Click this space to open a dialog.</p></div>
+    <div id="randomtext">
+      <p>The second modal dialog is anchored
+      <span id="seconddialoganchor">here</span>.
+      </p>
+      <p>The rest of this page is filler to allow for scrolling.</p>
+      <a href="/wiki/Don_(honorific)" title="Don (honorific)">Dona</a> <b>Teresa Cristina</b> (14 March 1822&#160;– 28 December 1889), nicknamed "the Mother of the Brazilians",<sup id="cite_ref-1" class="reference"><a href="#cite_note-1"><span>[</span>2<span>]</span></a></sup> was the <a href="/wiki/Queen_consort" title="Queen consort">Empress consort</a> of Emperor Dom&#160;<a href="/wiki/Pedro_II_of_Brazil" title="Pedro II of Brazil">Pedro&#160;II of Brazil</a>, who reigned from 1831 to 1889. Born a Princess of the <a href="/wiki/Kingdom_of_the_Two_Sicilies" title="Kingdom of the Two Sicilies">Kingdom of the Two Sicilies</a> (also known as the Kingdom of Naples) in present-day southern <a href="/wiki/Italy" title="Italy">Italy</a>, she was the daughter of King Don&#160;<a href="/wiki/Francis_I_of_the_Two_Sicilies" title="Francis I of the Two Sicilies">Francesco&#160;I</a> (Francis&#160;I) of the Italian branch of the <a href="/wiki/House_of_Bourbon" title="House of Bourbon">House of Bourbon</a> and his wife <a href="/wiki/Maria_Isabella_of_Spain" title="Maria Isabella of Spain" class="mw-redirect">Maria Isabel</a> (Maria Isabella). It was long believed by historians that the Princess was raised in an ultra-conservative, intolerant atmosphere which resulted in a timid and unassertive character in public and an ability to be contented with very little materially or emotionally. Recent studies revealed a more complex character, who despite having respected the social norms of the era, was able to assert a limited independence due to her strongly opinionated personality as well as her interest in learning, sciences and culture.</p>
+<p>The Princess was married by proxy to Pedro&#160;II in 1843. Her spouse's expectations were disappointed upon meeting his bride, who lacked beauty, in person. Despite a cold beginning, the couple's relationship improved as time passed, due primarily to Teresa Cristina's patience, kindness, generosity and simplicity. These traits also helped her win the hearts of the Brazilian people, and her distance from political controversies shielded her from criticism. She also sponsored archaeological studies in Italy and Italian immigration to Brazil.</p>
+<p>The marriage between Teresa Cristina and Pedro&#160;II never became passionately romantic, although a bond based upon family, mutual respect and fondness did develop. The Empress was a dutiful spouse and unfailingly supported the Emperor's positions and never interposed with her own views in public. She remained silent on the topic of his suspected extra-marital relationships—including a liaison with her daughters' governess. In turn, she was treated with unfailing respect and her position at Court and home was always secure. Of the four children Teresa Cristina bore him, two boys died in infancy and a daughter of <a href="/wiki/Typhoid_fever" title="Typhoid fever">typhoid fever</a> at the early age of 24.</p>
+<p>She, along with the remaining members of the Imperial Family, was sent into exile after a coup d'état staged by a clique of army officers in 1889. Being cast from her beloved adopted land had a devastating effect on Teresa Cristina's spirit and health. Grieving and ill, she died of respiratory failure leading to cardiac arrest little more than a month after the monarchy's collapse. She was greatly loved by her subjects, both during her lifetime and afterwards. She was even respected by the Republicans who overthrew the Empire. Despite having had no direct impact on Brazil's political history, Teresa Cristina is well regarded by historians not only for her character and irreproachable behavior, but as well for her sponsorship of Brazilian culture.</p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Teresa_Cristina_of_the_Two_Sicilies&amp;action=edit&amp;section=1" title="Edit section: Early life">edit</a>]</span> <span class="mw-headline" id="Early_life">Early life</span></h2>
+<h3><span class="editsection">[<a href="/w/index.php?title=Teresa_Cristina_of_the_Two_Sicilies&amp;action=edit&amp;section=2" title="Edit section: Birth">edit</a>]</span> <span class="mw-headline" id="Birth">Birth</span></h3>
+<p>Teresa Cristina was the daughter of the then-<a href="/wiki/Duke_of_Calabria" title="Duke of Calabria">Duke of Calabria</a>, who later became King Don&#160;<a href="/wiki/Francis_I_of_the_Two_Sicilies" title="Francis I of the Two Sicilies">Francesco I</a> (Francis&#160;I) of the Two Sicilies. Through her father, she was a member of the <a href="/wiki/House_of_Bourbon-Two_Sicilies" title="House of Bourbon-Two Sicilies">House of Bourbon-Two Sicilies</a> (Italian: <i>Borbone delle Due Sicilie</i>), also known as Bourbon-Naples (<i>Borbone di Napoli</i>), the Italian branch of the Spanish Bourbons. She was a descendant of France's "Sun King", <a href="/wiki/Louis_XIV_of_France" title="Louis XIV of France">Louis&#160;XIV</a> in the male line through his grandson, Don&#160;<a href="/wiki/Philip_V_of_Spain" title="Philip V of Spain">Felipe&#160;V</a> (Philip&#160;V) of Spain.<sup id="cite_ref-FOOTNOTECalmon1975210_2-0" class="reference"><a href="#cite_note-FOOTNOTECalmon1975210-2"><span>[</span>3<span>]</span></a></sup> Teresa Cristina's mother was the <i>Infanta</i> <i>Doña</i>&#160;<a href="/wiki/Maria_Isabella_of_Spain" title="Maria Isabella of Spain" class="mw-redirect">Maria Isabel</a> (Maria Isabella), daughter of King Don&#160;<a href="/wiki/Charles_IV_of_Spain" title="Charles IV of Spain">Carlos&#160;IV</a> (Charles&#160;IV) of Spain, and a younger sister of <i>Doña</i>&#160;<a href="/wiki/Carlota_of_Spain" title="Carlota of Spain" class="mw-redirect">Carlota Joaquina</a>—who married King Dom&#160;<a href="/wiki/John_VI_of_Portugal" title="John VI of Portugal">João&#160;VI of Portugal</a> and was thus the paternal grandmother of Teresa&#160;Cristina's future husband.<sup id="cite_ref-FOOTNOTECalmon1975210_2-1" class="reference"><a href="#cite_note-FOOTNOTECalmon1975210-2"><span>[</span>3<span>]</span></a></sup></p>
+<p>Born on 14 March 1822 in Naples,<sup id="cite_ref-FOOTNOTEZerbini200762_3-0" class="reference"><a href="#cite_note-FOOTNOTEZerbini200762-3"><span>[</span>4<span>]</span></a></sup> Teresa&#160;Cristina became an orphan when her father died in 1830. Her mother is said to have neglected her after marrying a young officer in 1839.<sup id="cite_ref-FOOTNOTECalmon1975211_0-1" class="reference"><a href="#cite_note-FOOTNOTECalmon1975211-0"><span>[</span>1<span>]</span></a></sup> Historiography has long asserted that she was raised in lonely isolation, in an environment of religious superstition, intolerance and conservatism.<sup id="cite_ref-FOOTNOTECalmon1975211_0-2" class="reference"><a href="#cite_note-FOOTNOTECalmon1975211-0"><span>[</span>1<span>]</span></a></sup> It has also described Teresa Cristina as a soft and timid character, unlike her ruthless father or her impulsive mother.<sup id="cite_ref-FOOTNOTECalmon1975210_2-2" class="reference"><a href="#cite_note-FOOTNOTECalmon1975210-2"><span>[</span>3<span>]</span></a></sup> She has even been depicted as unassertive, and accustomed to be satisfied in whatever circumstances she found herself.<sup id="cite_ref-FOOTNOTEBarman1999365_4-0" class="reference"><a href="#cite_note-FOOTNOTEBarman1999365-4"><span>[</span>5<span>]</span></a></sup></p>
+<p>Some historians have more recently held to a modified view of both the Neapolitan Bourbon court as a reactionary regime and of the extent of Teresa Cristina's passivity. Historian Aniello Angelo Avella states that the maligned interpretation of the Neapolitan Bourbons traces its origin to perspectives generated during the 19th century <i>il Risorgimento</i> (<a href="/wiki/Italian_unification" title="Italian unification">Italian unification</a>) following the 1861 conquest of the Kingdom of the Two Sicilies by the <a href="/wiki/Kingdom_of_Sardinia" title="Kingdom of Sardinia">Kingdom of Sardinia</a>.<sup id="cite_ref-FOOTNOTEAvella20107_5-0" class="reference"><a href="#cite_note-FOOTNOTEAvella20107-5"><span>[</span>6<span>]</span></a></sup> Teresa Cristina is revealed in her personal papers as a strong-headed character. She "was not a submissive woman but instead a person who respected the roles imposed by the ethics and values of her own times."<sup id="cite_ref-FOOTNOTEAvella20107_5-1" class="reference"><a href="#cite_note-FOOTNOTEAvella20107-5"><span>[</span>6<span>]</span></a></sup></p>
+<h3><span class="editsection">[<a href="/w/index.php?title=Teresa_Cristina_of_the_Two_Sicilies&amp;action=edit&amp;section=3" title="Edit section: Marriage">edit</a>]</span> <span class="mw-headline" id="Marriage">Marriage</span></h3>
+<div class="thumb tright">
+<div class="thumbinner" style="width:202px;"><a href="/wiki/File:Imperatriz_D._Tereza_Cristina2.jpg" class="image"><img alt="A half-length painted portrait of a young woman with light brown hair, small mouth, petite nose, very small waist, and large, widely spaced eyes. In the background is a drawn drape revealing a bay with an erupting volcano behind." src="200px-Imperatriz_D._Tereza_Cristina2.jpg" width="200" height="252" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Imperatriz_D._Tereza_Cristina2.jpg" class="internal" title="Enlarge"><img src="magnify-clip.png" width="15" height="11" alt="" /></a></div>
+The portrait of Teresa Cristina that enticed Pedro&#160;II to accept the marriage proposal</div>
+</div>
+</div>
+<p>Upon learning that the young emperor of Brazil, <a href="/wiki/Dom_(title)" title="Dom (title)">Dom</a> <a href="/wiki/Pedro_II_of_Brazil" title="Pedro II of Brazil">Pedro&#160;II</a>, sought a wife, the government of the Two Sicilies offered the hand of Teresa Cristina.<sup id="cite_ref-6" class="reference"><a href="#cite_note-6"><span>[</span>7<span>]</span></a></sup> It also sent Pedro&#160;II a painting that greatly embellished the princess, which prompted him to accept the proposal.<sup id="cite_ref-7" class="reference"><a href="#cite_note-7"><span>[</span>8<span>]</span></a></sup> A <a href="/wiki/Proxy_marriage" title="Proxy marriage">proxy wedding</a> was held on 30 May 1843 in Naples, Pedro&#160;II being represented by his fiancée's brother <a href="/wiki/Prince_Leopold,_Count_of_Syracuse" title="Prince Leopold, Count of Syracuse">Prince Leopold, Count of Syracuse</a>.<sup id="cite_ref-FOOTNOTECarvalho200751_8-0" class="reference"><a href="#cite_note-FOOTNOTECarvalho200751-8"><span>[</span>9<span>]</span></a></sup><sup id="cite_ref-FOOTNOTELira_1977.2C_Vol_1122_9-0" class="reference"><a href="#cite_note-FOOTNOTELira_1977.2C_Vol_1122-9"><span>[</span>10<span>]</span></a></sup> A small Brazilian fleet composed of a frigate and two corvettes<sup id="cite_ref-FOOTNOTECalmon1975213_10-0" class="reference"><a href="#cite_note-FOOTNOTECalmon1975213-10"><span>[</span>11<span>]</span></a></sup><sup id="cite_ref-FOOTNOTELira_1977.2C_Vol_1120_11-0" class="reference"><a href="#cite_note-FOOTNOTELira_1977.2C_Vol_1120-11"><span>[</span>12<span>]</span></a></sup> departed for the Two Sicilies on 3 March 1843 to escort the new Empress of Brazil.<sup id="cite_ref-FOOTNOTELira_1977.2C_Vol_1121_12-0" class="reference"><a href="#cite_note-FOOTNOTELira_1977.2C_Vol_1121-12"><span>[</span>13<span>]</span></a></sup><sup id="cite_ref-FOOTNOTECalmon1975214_13-0" class="reference"><a href="#cite_note-FOOTNOTECalmon1975214-13"><span>[</span>14<span>]</span></a></sup> She arrived on Rio de Janeiro on 3 September 1843.<sup id="cite_ref-14" class="reference"><a href="#cite_note-14"><span>[</span>15<span>]</span></a></sup> Pedro&#160;II immediately rushed to board the ship and greet his bride. Upon seeing this impetuous gesture, the crowds cheered and guns fired deafening salutes.<sup id="cite_ref-FOOTNOTELongo200881_15-0" class="reference"><a href="#cite_note-FOOTNOTELongo200881-15"><span>[</span>16<span>]</span></a></sup> Teresa Cristina fell in love with her new husband at first sight.<sup id="cite_ref-FOOTNOTEBarman199997_16-0" class="reference"><a href="#cite_note-FOOTNOTEBarman199997-16"><span>[</span>17<span>]</span></a></sup></p>
+<p>Popup dialog <a href="javascript:void(0)" id="dialoganchor">here</a></p>...
+<p>The 17-year old Pedro&#160;II was, for his part, clearly and greatly disappointed.<sup id="cite_ref-17" class="reference"><a href="#cite_note-17"><span>[</span>18<span>]</span></a></sup> His first impressions were only of her physical flaws—and of how much her appearance differed from the portrait which had been sent to him.<sup id="cite_ref-FOOTNOTEBarman199997_16-1" class="reference"><a href="#cite_note-FOOTNOTEBarman199997-16"><span>[</span>17<span>]</span></a></sup> Physically, she had brown hair and eyes,<sup id="cite_ref-FOOTNOTECalmon1975212_18-0" class="reference"><a href="#cite_note-FOOTNOTECalmon1975212-18"><span>[</span>19<span>]</span></a></sup> was short, a bit overweight, walked with a pronounced limp and, while not ugly, neither was she pretty.<sup id="cite_ref-barman97_19-0" class="reference"><a href="#cite_note-barman97-19"><span>[</span>20<span>]</span></a></sup> According to historian Pedro Calmon, Teresa Cristina had no true limp, but her odd way of walking was instead the result of bowed legs causing her to lean alternately right and left as she walked.<sup id="cite_ref-FOOTNOTECalmon1975213_10-1" class="reference"><a href="#cite_note-FOOTNOTECalmon1975213-10"><span>[</span>11<span>]</span></a></sup> Pedro&#160;II's high expectations were crushed, and he allowed his feelings of revulsion and rejection to show.<sup id="cite_ref-FOOTNOTEBarman199997_16-2" class="reference"><a href="#cite_note-FOOTNOTEBarman199997-16"><span>[</span>17<span>]</span></a></sup> After a short interval, he left the ship. Perceiving his disillusionment, she burst into tears, lamenting that "the emperor did not like me!"<sup id="cite_ref-20" class="reference"><a href="#cite_note-20"><span>[</span>21<span>]</span></a></sup> Although a proxy marriage had already been performed, an extravagant state wedding was held on 4 September at the cathedral in Rio de Janeiro.<sup id="cite_ref-21" class="reference"><a href="#cite_note-21"><span>[</span>22<span>]</span></a></sup></p>
+<p>Although the marriage had been strained from the beginning, Teresa Cristina continued striving to be a good wife. Her constancy toward fulfilling her duty, along with the birth of children, softened Pedro&#160;II's attitude. The two discovered shared interests, and their concern for and delight in their children created a sense of family happiness.<sup id="cite_ref-FOOTNOTEBarman1999126_22-0" class="reference"><a href="#cite_note-FOOTNOTEBarman1999126-22"><span>[</span>23<span>]</span></a></sup> That they were sexually active and compatible is witnessed by the series of pregnancies which ensued. After the birth of their first son in February 1845, the Empress bore children in July 1846, July 1847, and July 1848—named <a href="/wiki/Afonso,_Prince_Imperial_of_Brazil" title="Afonso, Prince Imperial of Brazil">Afonso</a>, <a href="/wiki/Isabel,_Princess_Imperial_of_Brazil" title="Isabel, Princess Imperial of Brazil">Isabel</a>, <a href="/wiki/Princess_Leopoldina_of_Brazil" title="Princess Leopoldina of Brazil">Leopoldina</a> and <a href="/wiki/Pedro,_Prince_Imperial_of_Brazil" title="Pedro, Prince Imperial of Brazil">Pedro</a>, respectively.<sup id="cite_ref-FOOTNOTEBarman1999127_23-0" class="reference"><a href="#cite_note-FOOTNOTEBarman1999127-23"><span>[</span>24<span>]</span></a></sup></p>
+<h2><span class="editsection">[<a href="/w/index.php?title=Teresa_Cristina_of_the_Two_Sicilies&amp;action=edit&amp;section=4" title="Edit section: Empress consort of Brazil">edit</a>]</span> <span class="mw-headline" id="Empress_consort_of_Brazil">Empress consort of Brazil</span></h2>
+<h3><span class="editsection">[<a href="/w/index.php?title=Teresa_Cristina_of_the_Two_Sicilies&amp;action=edit&amp;section=5" title="Edit section: Domestic life">edit</a>]</span> <span class="mw-headline" id="Domestic_life">Domestic life</span></h3>
+<div class="thumb tleft">
+<div class="thumbinner" style="width:202px;"><a href="/wiki/File:Teresa_cristina_of_brazil_circa_1851_frame_removed.png" class="image"><img alt="Photographic portrait of a woman seated and wearing a dark dress trimmed in dark lace, with her hair pulled back into a bun and no jewelry except for a simple ring on her left hand" src="200px-Teresa_cristina_of_brazil_circa_1851_frame_removed.png" width="200" height="266" class="thumbimage" /></a>
+<div class="thumbcaption">
+<div class="magnify"><a href="/wiki/File:Teresa_cristina_of_brazil_circa_1851_frame_removed.png" class="internal" title="Enlarge"><img src="magnify-clip.png" width="15" height="11" alt="" /></a></div>
+Teresa Cristina around age 29, c.&#160;1851</div>
+</div>
+</div>
+    </div>
+    <a href="javascript:void(0)" onclick="showLogin();">Login</a>
+  </body>
+</html>
