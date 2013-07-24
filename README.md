@@ -34,7 +34,7 @@ With the polyfill, you do it like:
 ### Known limitations
 
 - Modality isn't bulletproof (you can tab to inert elements)
-- The polyfill <dialog> should always be a child of <body>
+- The polyfill `<dialog>` should always be a child of `<body>`
 - Polyfill top layer stacking can be ruined by playing with z-index.
-- The polyfill <dialog> does not retain dynamically set CSS top/bottom values
+- The polyfill `<dialog>` does not retain dynamically set CSS top/bottom values
 upon close
